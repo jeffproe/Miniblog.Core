@@ -7,30 +7,30 @@
 
 @foreach (var post in Model)
 {
-    await Html.RenderPartialAsync("Post.cshtml", post);
+	await Html.RenderPartialAsync("Post.cshtml", post);
 }
 
 <nav class="pagination container" aria-label="Pagination">
-    @if (Model.Any() && currentPage < pageCount)
-    {
-        <a rel="prev" href="@ViewData["prev"]" title="Older posts">&laquo; Older</a>
-    }
-    @if (currentPage > 0)
-    {
-        <a rel="next" href="@ViewData["next"]" title="Newer posts">Newer &raquo;</a>
-    }
-    <br /><br />
+	@if (Model.Any() && currentPage < pageCount)
+	{
+		<a rel="prev" href="@ViewData["prev"]" title="Older posts">&laquo; Older</a>
+	}
+	@if (currentPage > 0)
+	{
+		<a rel="next" href="@ViewData["next"]" title="Newer posts">Newer &raquo;</a>
+	}
+	<br /><br />
 
-    @section Head {
-        @if (Model.Any() && currentPage < pageCount)
-        {
-            <link rel="prev" href="@ViewData["prev"]" />
-        }
-        @if (currentPage > 0)
-        {
-            <link rel="next" href="@ViewData["next"]" />
-        }
-    }
+	@section Head {
+		@if (Model.Any() && currentPage < pageCount)
+		{
+			<link rel="prev" href="@ViewData["prev"]" />
+		}
+		@if (currentPage > 0)
+		{
+			<link rel="next" href="@ViewData["next"]" />
+		}
+	}
 </nav>
 
 @{await Html.RenderPartialAsync("_SocialSharing", ViewData["Title"]);}
