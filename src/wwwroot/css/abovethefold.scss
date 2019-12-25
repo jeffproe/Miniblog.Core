@@ -42,6 +42,21 @@ body {
 	}
 }
 
+.nav-container {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr 1fr;
+	grid-gap: 20px;
+}
+
+.nav-item {
+	background-color: $dark-bg-color;
+	padding: 0.5em;
+	text-align: center;
+	color: $link_color;
+	text-decoration: none;
+	border-radius: 1em;
+}
+
 .main-content {
 	padding: 1em;
 }
@@ -49,6 +64,7 @@ body {
 .sidebar {
 	background: $dark-bg-color;
 	padding: 1em;
+	border-radius: 1em;
 }
 
 .siteheader {

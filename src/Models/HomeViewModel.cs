@@ -10,5 +10,6 @@ namespace Miniblog.Core.Models
 		}
 
 		public List<LatestPost> LatestPosts { get; set; }
+		public Post Post { get; set; }
 	}
 }

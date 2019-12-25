@@ -27,6 +27,9 @@ namespace src.Controllers
 					Link = post.GetLink()
 				});
 			}
+
+			model.Post = await _blog.GetPostBySlug("Home");
+
 			return View(model);
 		}
 	}
