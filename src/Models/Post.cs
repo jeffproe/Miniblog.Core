@@ -13,15 +13,15 @@ namespace Miniblog.Core.Models
 		public string ID { get; set; } = DateTime.UtcNow.Ticks.ToString();
 
 		[Required]
-		public string Title { get; set; }
+		public string Title { get; set; } = string.Empty;
 
-		public string Slug { get; set; }
-
-		[Required]
-		public string Excerpt { get; set; }
+		public string Slug { get; set; } = string.Empty;
 
 		[Required]
-		public string Content { get; set; }
+		public string Excerpt { get; set; } = string.Empty;
+
+		[Required]
+		public string Content { get; set; } = string.Empty;
 
 		public DateTime PubDate { get; set; } = DateTime.UtcNow;
 

@@ -17,6 +17,20 @@ namespace src.Controllers
 		[OutputCache(Profile = "default")]
 		public async Task<IActionResult> Index()
 		{
+			var model = await GetPageWithLatestAsync("home");
+			return View(model);
+		}
+
+		[Route("/about")]
+		[OutputCache(Profile = "default")]
+		public async Task<IActionResult> About()
+		{
+			var model = await GetPageWithLatestAsync("about");
+			return View(model);
+		}
+
+		private async Task<HomeViewModel> GetPageWithLatestAsync(string slug)
+		{
 			var model = new HomeViewModel();
 			var posts = await _blog.GetPosts(5);
 			foreach (var post in posts)
@@ -28,9 +42,13 @@ namespace src.Controllers
 				});
 			}
 
-			model.Post = await _blog.GetPostBySlug("Home");
+			model.Post = await _blog.GetPostBySlug(slug);
+			if (null == model.Post)
+			{
+				model.Post = new Post();
+			}
 
-			return View(model);
+			return model;
 		}
 	}
 }
