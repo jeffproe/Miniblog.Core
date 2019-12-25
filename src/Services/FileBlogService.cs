@@ -36,7 +36,9 @@ namespace Miniblog.Core.Services
 			bool isAdmin = IsAdmin();
 
 			var posts = _cache
-				.Where(p => p.PubDate <= DateTime.UtcNow && (p.IsPublished || isAdmin) && p.Slug != "home")
+				.Where(p => p.PubDate <= DateTime.UtcNow
+					&& (p.IsPublished || isAdmin)
+					&& p.Slug != "home" && p.Slug != "about")
 				.Skip(skip)
 				.Take(count);
 
