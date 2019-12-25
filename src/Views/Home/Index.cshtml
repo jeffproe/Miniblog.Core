@@ -6,11 +6,10 @@
 	<div class="container2cols">
 		<div class="main-content">
 			@{await Html.RenderPartialAsync("Post.cshtml", Model.Post);}
+			@{await Html.RenderPartialAsync("_SocialSharing", ViewData["Title"]);}
 		</div>
 		<div class="sidebar">
 			@{await Html.RenderPartialAsync("_LatestPosts", Model.LatestPosts);}
 		</div>
 	</div>
 </div>
-
-@{await Html.RenderPartialAsync("_SocialSharing", ViewData["Title"]);}
