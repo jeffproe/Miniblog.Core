@@ -5,13 +5,7 @@
 <div class="container">
 	<div class="container2cols">
 		<div class="main-content">
-			<h2>@ViewData["Title"]</h2>
-
-			<p>Hello from our View Template!</p>
-			<p>This is stuff you should know about us!</p>
-			<p>And you should read our @Html.ActionLink("Blog", "", "Blog")</p>
-			<p>Spicy jalapeno bacon ipsum dolor amet doner hamburger tempor sed aliqua. Cow adipisicing andouille sausage, ullamco ea reprehenderit ut doner aliqua. Commodo tenderloin meatloaf in prosciutto, drumstick aliqua eiusmod. Minim aliqua ex non duis ground round anim nisi burgdoggen. Boudin spare ribs fatback ground round cupim ham doner tri-tip labore pork belly pancetta ut rump. Filet mignon alcatra biltong do mollit. Dolore magna sed cillum sunt dolor.</p>
-			<p>Dolore adipisicing salami dolore, rump sint bresaola pork short loin chislic venison qui ea jowl. Capicola ex est dolore reprehenderit, chuck aute buffalo consectetur adipisicing kielbasa spare ribs flank elit occaecat. Cupim id culpa tempor doner. Flank adipisicing chislic ham hock andouille ipsum buffalo, swine occaecat nisi. Occaecat dolore fatback nulla shank shoulder. Est laboris shankle esse.</p>
+			@{await Html.RenderPartialAsync("Post.cshtml", Model.Post);}
 		</div>
 		<div class="sidebar">
 			@{await Html.RenderPartialAsync("_LatestPosts", Model.LatestPosts);}
