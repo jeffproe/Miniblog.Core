@@ -45,7 +45,7 @@ namespace src.Controllers
 			model.Post = await _blog.GetPostBySlug(slug);
 			if (null == model.Post)
 			{
-				model.Post = new Post();
+				model.Post = new PostVM();
 			}
 
 			return model;

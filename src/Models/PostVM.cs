@@ -7,10 +7,10 @@ using System.Text.RegularExpressions;
 
 namespace Miniblog.Core.Models
 {
-	public class Post
+	public class PostVM
 	{
 		[Required]
-		public string ID { get; set; } = DateTime.UtcNow.Ticks.ToString();
+		public string Id { get; set; }
 
 		[Required]
 		public string Title { get; set; } = string.Empty;
@@ -31,7 +31,7 @@ namespace Miniblog.Core.Models
 
 		public IList<string> Categories { get; set; } = new List<string>();
 
-		public IList<Comment> Comments { get; } = new List<Comment>();
+		public IList<CommentVM> Comments { get; } = new List<CommentVM>();
 
 		public string GetLink()
 		{

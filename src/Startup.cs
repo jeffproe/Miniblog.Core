@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Miniblog.Core.Database;
 using Miniblog.Core.Services;
 using WebEssentials.AspNetCore.OutputCaching;
 using WebMarkupMin.AspNetCore2;
@@ -37,8 +40,7 @@ namespace Miniblog.Core
 				{
 					webBuilder
 						.UseStartup<Startup>()
-						.ConfigureKestrel(options => options.AddServerHeader = false)
-						;
+						.ConfigureKestrel(options => options.AddServerHeader = false);
 				});
 		}
 
@@ -50,8 +52,15 @@ namespace Miniblog.Core
 			services.AddControllersWithViews();
 			services.AddRazorPages();
 
+			services.AddDbContext<BlogContext>(options =>
+				options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+			);
+			services.AddAutoMapper(typeof(Startup));
+
 			services.AddSingleton<IUserServices, BlogUserServices>();
-			services.AddSingleton<IBlogService, FileBlogService>();
+			//services.AddSingleton<IBlogService, FileBlogService>();
+			services.AddScoped<IBlogService, DbBlogService>();
+
 			services.Configure<BlogSettings>(Configuration.GetSection("blog"));
 			services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 			services.AddMetaWeblog<MetaWeblogService>();
