@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -14,24 +13,17 @@ using System.Xml.XPath;
 
 namespace Miniblog.Core.Services
 {
-	public class FileBlogService : IBlogService
+	public class FileBlogService : BaseBlogService, IBlogService
 	{
-		private const string POSTS = "Posts";
-		private const string FILES = "files";
-
-		private readonly List<Post> _cache = new List<Post>();
-		private readonly IHttpContextAccessor _contextAccessor;
-		private readonly string _folder;
+		private readonly List<PostVM> _cache = new List<PostVM>();
 
 		public FileBlogService(IWebHostEnvironment env, IHttpContextAccessor contextAccessor)
+			: base(env, contextAccessor)
 		{
-			_folder = Path.Combine(env.WebRootPath, POSTS);
-			_contextAccessor = contextAccessor;
-
 			Initialize();
 		}
 
-		public virtual Task<IEnumerable<Post>> GetPosts(int count, int skip = 0)
+		public virtual Task<IEnumerable<PostVM>> GetPosts(int count, int skip = 0)
 		{
 			bool isAdmin = IsAdmin();
 
@@ -45,7 +37,7 @@ namespace Miniblog.Core.Services
 			return Task.FromResult(posts);
 		}
 
-		public virtual Task<IEnumerable<Post>> GetPostsByCategory(string category)
+		public virtual Task<IEnumerable<PostVM>> GetPostsByCategory(string category)
 		{
 			bool isAdmin = IsAdmin();
 
@@ -57,7 +49,7 @@ namespace Miniblog.Core.Services
 			return Task.FromResult(posts);
 		}
 
-		public virtual Task<Post> GetPostBySlug(string slug)
+		public virtual Task<PostVM> GetPostBySlug(string slug)
 		{
 			var post = _cache.FirstOrDefault(p => p.Slug.Equals(slug, StringComparison.OrdinalIgnoreCase));
 			bool isAdmin = IsAdmin();
@@ -67,12 +59,12 @@ namespace Miniblog.Core.Services
 				return Task.FromResult(post);
 			}
 
-			return Task.FromResult<Post>(null);
+			return Task.FromResult<PostVM>(null);
 		}
 
-		public virtual Task<Post> GetPostById(string id)
+		public virtual Task<PostVM> GetPostById(string id)
 		{
-			var post = _cache.FirstOrDefault(p => p.ID.Equals(id, StringComparison.OrdinalIgnoreCase));
+			var post = _cache.FirstOrDefault(p => p.Id == id);
 			bool isAdmin = IsAdmin();
 
 			if (post != null && post.PubDate <= DateTime.UtcNow && (post.IsPublished || isAdmin))
@@ -80,7 +72,7 @@ namespace Miniblog.Core.Services
 				return Task.FromResult(post);
 			}
 
-			return Task.FromResult<Post>(null);
+			return Task.FromResult<PostVM>(null);
 		}
 
 		public virtual Task<IEnumerable<string>> GetCategories()
@@ -96,7 +88,7 @@ namespace Miniblog.Core.Services
 			return Task.FromResult(categories);
 		}
 
-		public async Task SavePost(Post post)
+		public async Task SavePost(PostVM post)
 		{
 			string filePath = GetFilePath(post);
 			post.LastModified = DateTime.UtcNow;
@@ -121,7 +113,7 @@ namespace Miniblog.Core.Services
 			}
 
 			XElement comments = doc.XPathSelectElement("post/comments");
-			foreach (Comment comment in post.Comments)
+			foreach (CommentVM comment in post.Comments)
 			{
 				comments.Add(
 					new XElement("comment",
@@ -130,7 +122,7 @@ namespace Miniblog.Core.Services
 						new XElement("date", FormatDateTime(comment.PubDate)),
 						new XElement("content", comment.Content),
 						new XAttribute("isAdmin", comment.IsAdmin),
-						new XAttribute("id", comment.ID)
+						new XAttribute("id", comment.Id)
 					));
 			}
 
@@ -146,7 +138,7 @@ namespace Miniblog.Core.Services
 			}
 		}
 
-		public Task DeletePost(Post post)
+		public Task DeletePost(PostVM post)
 		{
 			string filePath = GetFilePath(post);
 
@@ -165,28 +157,12 @@ namespace Miniblog.Core.Services
 
 		public async Task<string> SaveFile(byte[] bytes, string fileName, string suffix = null)
 		{
-			suffix = CleanFromInvalidChars(suffix ?? DateTime.UtcNow.Ticks.ToString());
-
-			string ext = Path.GetExtension(fileName);
-			string name = CleanFromInvalidChars(Path.GetFileNameWithoutExtension(fileName));
-
-			string fileNameWithSuffix = $"{name}_{suffix}{ext}";
-
-			string absolute = Path.Combine(_folder, FILES, fileNameWithSuffix);
-			string dir = Path.GetDirectoryName(absolute);
-
-			Directory.CreateDirectory(dir);
-			using (var writer = new FileStream(absolute, FileMode.CreateNew))
-			{
-				await writer.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
-			}
-
-			return $"/{POSTS}/{FILES}/{fileNameWithSuffix}";
+			return await SaveFileAsync(bytes, fileName, suffix);
 		}
 
-		private string GetFilePath(Post post)
+		private string GetFilePath(PostVM post)
 		{
-			return Path.Combine(_folder, post.ID + ".xml");
+			return Path.Combine(_folder, post.Id + ".xml");
 		}
 
 		private void Initialize()
@@ -205,9 +181,9 @@ namespace Miniblog.Core.Services
 			{
 				XElement doc = XElement.Load(file);
 
-				Post post = new Post
+				PostVM post = new PostVM
 				{
-					ID = Path.GetFileNameWithoutExtension(file),
+					Id = Path.GetFileNameWithoutExtension(file),
 					Title = ReadValue(doc, "title"),
 					Excerpt = ReadValue(doc, "excerpt"),
 					Content = ReadValue(doc, "content"),
@@ -223,7 +199,7 @@ namespace Miniblog.Core.Services
 			}
 		}
 
-		private static void LoadCategories(Post post, XElement doc)
+		private static void LoadCategories(PostVM post, XElement doc)
 		{
 			XElement categories = doc.Element("categories");
 			if (categories == null)
@@ -239,7 +215,7 @@ namespace Miniblog.Core.Services
 			post.Categories = list.ToArray();
 		}
 
-		private static void LoadComments(Post post, XElement doc)
+		private static void LoadComments(PostVM post, XElement doc)
 		{
 			var comments = doc.Element("comments");
 
@@ -248,9 +224,9 @@ namespace Miniblog.Core.Services
 
 			foreach (var node in comments.Elements("comment"))
 			{
-				Comment comment = new Comment()
+				CommentVM comment = new CommentVM()
 				{
-					ID = ReadAttribute(node, "id"),
+					Id = ReadAttribute(node, "id"),
 					Author = ReadValue(node, "author"),
 					Email = ReadValue(node, "email"),
 					IsAdmin = bool.Parse(ReadAttribute(node, "isAdmin", "false")),
@@ -278,16 +254,6 @@ namespace Miniblog.Core.Services
 			return defaultValue;
 		}
 
-		private static string CleanFromInvalidChars(string input)
-		{
-			// ToDo: what we are doing here if we switch the blog from windows
-			// to unix system or vice versa? we should remove all invalid chars for both systems
-
-			var regexSearch = Regex.Escape(new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars()));
-			var r = new Regex($"[{regexSearch}]");
-			return r.Replace(input, "");
-		}
-
 		private static string FormatDateTime(DateTime dateTime)
 		{
 			const string UTC = "yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'";
@@ -300,11 +266,6 @@ namespace Miniblog.Core.Services
 		protected void SortCache()
 		{
 			_cache.Sort((p1, p2) => p2.PubDate.CompareTo(p1.PubDate));
-		}
-
-		protected bool IsAdmin()
-		{
-			return _contextAccessor.HttpContext?.User?.Identity.IsAuthenticated == true;
 		}
 	}
 }

@@ -80,7 +80,7 @@ namespace Miniblog.Core.Controllers
 
 			if (string.IsNullOrEmpty(id))
 			{
-				return View(new Post());
+				return View(new PostVM());
 			}
 
 			var post = await _blog.GetPostById(id);
@@ -95,19 +95,19 @@ namespace Miniblog.Core.Controllers
 
 		[Route("UpdatePost/{slug?}")]
 		[HttpPost, Authorize, AutoValidateAntiforgeryToken]
-		public async Task<IActionResult> UpdatePost(Post post)
+		public async Task<IActionResult> UpdatePost(PostVM post)
 		{
 			if (!ModelState.IsValid)
 			{
 				return View("Edit", post);
 			}
 
-			var existing = await _blog.GetPostById(post.ID) ?? post;
+			var existing = await _blog.GetPostById(post.Id) ?? post;
 			string categories = Request.Form["categories"];
 
 			existing.Categories = categories.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(c => c.Trim().ToLowerInvariant()).ToList();
 			existing.Title = post.Title.Trim();
-			existing.Slug = !string.IsNullOrWhiteSpace(post.Slug) ? post.Slug.Trim() : Models.Post.CreateSlug(post.Title);
+			existing.Slug = !string.IsNullOrWhiteSpace(post.Slug) ? post.Slug.Trim() : Models.PostVM.CreateSlug(post.Title);
 			existing.IsPublished = post.IsPublished;
 			existing.Content = post.Content.Trim();
 			existing.Excerpt = post.Excerpt.Trim();
@@ -119,7 +119,7 @@ namespace Miniblog.Core.Controllers
 			return Redirect(post.GetEncodedLink());
 		}
 
-		private async Task SaveFilesToDisk(Post post)
+		private async Task SaveFilesToDisk(PostVM post)
 		{
 			var imgRegex = new Regex("<img[^>]+ />", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 			var base64Regex = new Regex("data:[^/]+/(?<ext>[a-z]+);base64,(?<base64>.+)", RegexOptions.IgnoreCase);
@@ -181,7 +181,7 @@ namespace Miniblog.Core.Controllers
 
 		[Route("comment/{postId}")]
 		[HttpPost]
-		public async Task<IActionResult> AddComment(string postId, Comment comment)
+		public async Task<IActionResult> AddComment(string postId, CommentVM comment)
 		{
 			var post = await _blog.GetPostById(postId);
 
@@ -208,7 +208,7 @@ namespace Miniblog.Core.Controllers
 				await _blog.SavePost(post);
 			}
 
-			return Redirect(post.GetEncodedLink() + "#" + comment.ID);
+			return Redirect(post.GetEncodedLink() + "#" + comment.Id);
 		}
 
 		[Route("comment/{postId}/{commentId}")]
@@ -222,7 +222,7 @@ namespace Miniblog.Core.Controllers
 				return NotFound();
 			}
 
-			var comment = post.Comments.FirstOrDefault(c => c.ID.Equals(commentId, StringComparison.OrdinalIgnoreCase));
+			var comment = post.Comments.FirstOrDefault(c => c.Id.Equals(commentId));
 
 			if (comment == null)
 			{

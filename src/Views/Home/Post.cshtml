@@ -1,4 +1,4 @@
-﻿@model Post
+﻿@model PostVM
 @inject IOptionsSnapshot<BlogSettings> settings
 @{
     ViewData["Title"] = Model.Title;
@@ -17,7 +17,7 @@
         <h1 itemprop="name headline"><a href="@Model.GetLink()" rel="canonical" itemprop="url">@Model.Title</a></h1>
         @if (User.Identity.IsAuthenticated)
         {
-            <a asp-controller="Blog" asp-action="edit" asp-route-id="@Model.ID" title="Edit the post">Edit post</a>
+            <a asp-controller="Blog" asp-action="edit" asp-route-id="@Model.Id" title="Edit the post">Edit post</a>
         }
     </header>
 
