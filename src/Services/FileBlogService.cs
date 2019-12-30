@@ -23,6 +23,18 @@ namespace Miniblog.Core.Services
 			Initialize();
 		}
 
+		public virtual Task<IEnumerable<PostVM>> GetPosts()
+		{
+			bool isAdmin = IsAdmin();
+
+			var posts = _cache
+				.Where(p => p.PubDate <= DateTime.UtcNow
+					&& (p.IsPublished || isAdmin)
+					&& p.Slug != "home" && p.Slug != "about");
+
+			return Task.FromResult(posts);
+		}
+
 		public virtual Task<IEnumerable<PostVM>> GetPosts(int count, int skip = 0)
 		{
 			bool isAdmin = IsAdmin();

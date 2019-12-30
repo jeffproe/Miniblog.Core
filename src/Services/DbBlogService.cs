@@ -116,6 +116,28 @@ namespace Miniblog.Core.Services
 			return null;
 		}
 
+		public async Task<IEnumerable<PostVM>> GetPosts()
+		{
+			try
+			{
+				var posts = await _context.Posts
+					.AsNoTracking()
+					.Where(p => p.PubDate <= DateTime.UtcNow
+						&& (p.IsPublished || IsAdmin())
+						&& p.Slug != "home" && p.Slug != "about")
+					.OrderByDescending(p => p.PubDate)
+					.ToListAsync();
+
+				var postVms = _mapper.Map<List<PostVM>>(posts);
+				return postVms.AsEnumerable();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.ToString());
+				return new List<PostVM>().AsEnumerable();
+			}
+		}
+
 		public async Task<IEnumerable<PostVM>> GetPosts(int count, int skip = 0)
 		{
 			try
