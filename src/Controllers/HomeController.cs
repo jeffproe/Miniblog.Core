@@ -48,6 +48,16 @@ namespace src.Controllers
 				model.Post = new PostVM();
 			}
 
+			var cats = await _blog.GetCategories(false);
+			foreach (var cat in cats)
+			{
+				model.Categories.Add(new CategoryLink()
+				{
+					Title = cat,
+					Link = $"/blog/category/{cat}"
+				});
+			}
+
 			return model;
 		}
 	}
