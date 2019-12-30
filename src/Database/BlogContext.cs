@@ -9,6 +9,7 @@ namespace Miniblog.Core.Database
 		public DbSet<Comment> Comments { get; set; }
 		public DbSet<Category> Categories { get; set; }
 		public DbSet<PostCategory> PostCategories { get; set; }
+		public DbSet<Users> Users { get; set; }
 
 		public BlogContext(DbContextOptions<BlogContext> options)
 			: base(options)

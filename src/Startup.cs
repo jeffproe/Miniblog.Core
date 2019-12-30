@@ -58,8 +58,9 @@ namespace Miniblog.Core
 			services.AddAutoMapper(typeof(Startup));
 
 			services.AddSingleton<IUserServices, BlogUserServices>();
-			//services.AddSingleton<IBlogService, FileBlogService>();
-			services.AddScoped<IBlogService, DbBlogService>();
+			services.AddSingleton<IBlogService, FileBlogService>();
+			// services.AddScoped<IUserServices, DbBlogUserService>();
+			// services.AddScoped<IBlogService, DbBlogService>();
 
 			services.Configure<BlogSettings>(Configuration.GetSection("blog"));
 			services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
