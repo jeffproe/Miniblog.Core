@@ -1,0 +1,10 @@
+@model IEnumerable<CategoryLink>
+
+<h2>Categories</h2>
+
+<ul>
+@foreach (var cat in Model)
+{
+	<li><a href="@cat.Link" rel="canonical" itemprop="url">@cat.Title</a></li>
+}
+</ul>

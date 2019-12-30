@@ -87,7 +87,7 @@ namespace Miniblog.Core.Services
 			return Task.FromResult<PostVM>(null);
 		}
 
-		public virtual Task<IEnumerable<string>> GetCategories()
+		public virtual Task<IEnumerable<string>> GetCategories(bool all = true)
 		{
 			bool isAdmin = IsAdmin();
 

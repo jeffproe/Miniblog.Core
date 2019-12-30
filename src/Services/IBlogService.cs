@@ -19,7 +19,7 @@ namespace Miniblog.Core.Services
 
 		Task<PostVM> GetPostById(string id);
 
-		Task<IEnumerable<string>> GetCategories();
+		Task<IEnumerable<string>> GetCategories(bool all = true);
 
 		Task SavePost(PostVM post);
 
@@ -100,7 +100,7 @@ namespace Miniblog.Core.Services
 			return Task.FromResult<PostVM>(null);
 		}
 
-		public virtual Task<IEnumerable<string>> GetCategories()
+		public virtual Task<IEnumerable<string>> GetCategories(bool all = true)
 		{
 			bool isAdmin = IsAdmin();
 

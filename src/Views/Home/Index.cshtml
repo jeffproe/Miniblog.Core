@@ -10,6 +10,7 @@
 		</div>
 		<div class="sidebar">
 			@{await Html.RenderPartialAsync("_LatestPosts", Model.LatestPosts);}
+			@{await Html.RenderPartialAsync("_Categories", Model.Categories);}
 		</div>
 	</div>
 </div>

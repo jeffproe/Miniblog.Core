@@ -58,10 +58,11 @@ namespace Miniblog.Core.Services
 			}
 		}
 
-		public Task<IEnumerable<string>> GetCategories()
+		public Task<IEnumerable<string>> GetCategories(bool all = true)
 		{
 			var cats = _context.Categories
 				.AsNoTracking()
+				.Where(x => all == true || x.PostCategories.Any())
 				.Select(x => x.Name.ToLowerInvariant())
 				.Distinct()
 				.AsEnumerable<string>();
