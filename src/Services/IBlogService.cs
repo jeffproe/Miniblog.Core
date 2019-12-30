@@ -7,8 +7,10 @@ using Miniblog.Core.Models;
 
 namespace Miniblog.Core.Services
 {
-	public interface IBlogService
-	{
+    public interface IBlogService
+    {
+        // overload for getPosts method to retrieve all posts. @bacardibryant 12/21/2019
+
 		Task<IEnumerable<PostVM>> GetPosts(int count, int skip = 0);
 
 		Task<IEnumerable<PostVM>> GetPostsByCategory(string category);
@@ -36,9 +38,20 @@ namespace Miniblog.Core.Services
 		protected List<PostVM> Cache { get; set; }
 		protected IHttpContextAccessor ContextAccessor { get; }
 
-		public virtual Task<IEnumerable<PostVM>> GetPosts(int count, int skip = 0)
-		{
-			bool isAdmin = IsAdmin();
+        // overload for getPosts method to retrieve all posts. @bacardibryant 12/21/2019
+        public virtual Task<IEnumerable<Post>> GetPosts()
+        {
+            bool isAdmin = IsAdmin();
+
+            var posts = Cache
+                .Where(p => p.PubDate <= DateTime.UtcNow && (p.IsPublished || isAdmin));
+
+            return Task.FromResult(posts);
+        }
+
+        public virtual Task<IEnumerable<Post>> GetPosts(int count, int skip = 0)
+        {
+            bool isAdmin = IsAdmin();
 
 			var posts = Cache
 				.Where(p => p.PubDate <= DateTime.UtcNow && (p.IsPublished || isAdmin))
